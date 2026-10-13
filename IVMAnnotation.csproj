@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.30319</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{36AA7ED3-C532-4A58-B563-538341A279AF}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon />
+    <AssemblyKeyContainerName />
+    <AssemblyName>IVMAnnotation</AssemblyName>
+    <AssemblyOriginatorKeyFile />
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>IVMAnnotation</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject />
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>0.0</OldToolsVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile />
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CaptureDll.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawArea.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DrawAreaFileIO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawArrayOfPolygons.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawArrow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawEllipse.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawLine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawPolygon.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawRectangle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DrawText.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GraphicsList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IAnnotationsTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObservableObject.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ShapesDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TextInput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tool.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolArrayOfPolygons.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolArrow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolEllipse.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolLine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolPointer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolPolygon.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolRectangle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolText.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ToolZoom.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="cur_arrow.cur" />
+    <EmbeddedResource Include="cur_beam_il.cur" />
+    <EmbeddedResource Include="cur_Ellipse.cur" />
+    <EmbeddedResource Include="cur_Line.cur" />
+    <EmbeddedResource Include="cur_Pencil.cur" />
+    <EmbeddedResource Include="cur_pen_il.cur" />
+    <EmbeddedResource Include="cur_PolyHandle.cur" />
+    <EmbeddedResource Include="cur_Rectangle.cur" />
+    <EmbeddedResource Include="cur_zoomin.cur" />
+    <EmbeddedResource Include="cur_zoomout.cur" />
+    <EmbeddedResource Include="DrawArea.resx">
+      <DependentUpon>DrawArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ShapesDlg.resx">
+      <DependentUpon>ShapesDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextInput.resx">
+      <DependentUpon>TextInput.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>cmd unregister.bat</PreBuildEvent>
+    <PostBuildEvent>cmd register.bat</PostBuildEvent>
+  </PropertyGroup>
+</Project>
