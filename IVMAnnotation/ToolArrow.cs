@@ -13,7 +13,7 @@ namespace IVMAnnotation
 	{
         public ToolArrow()
         {
-            Cursor = new Cursor(GetType(), "cur_arrow.cur");
+            Cursor = new Cursor(Helper.GetCursorStream("cur_arrow.cur"));
         }
 
         public override void OnMouseDown(DrawArea drawArea, MouseEventArgs e)

@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="cur_arrow.cur" />
+    <None Remove="cur_beam_il.cur" />
+    <None Remove="cur_Ellipse.cur" />
+    <None Remove="cur_Line.cur" />
+    <None Remove="cur_Pencil.cur" />
+    <None Remove="cur_pen_il.cur" />
+    <None Remove="cur_PolyHandle.cur" />
+    <None Remove="cur_Rectangle.cur" />
+    <None Remove="cur_zoomin.cur" />
+    <None Remove="cur_zoomout.cur" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="cur_arrow.cur" />
+    <EmbeddedResource Include="cur_beam_il.cur" />
+    <EmbeddedResource Include="cur_Ellipse.cur" />
+    <EmbeddedResource Include="cur_Line.cur" />
+    <EmbeddedResource Include="cur_Pencil.cur" />
+    <EmbeddedResource Include="cur_pen_il.cur" />
+    <EmbeddedResource Include="cur_PolyHandle.cur" />
+    <EmbeddedResource Include="cur_Rectangle.cur" />
+    <EmbeddedResource Include="cur_zoomin.cur" />
+    <EmbeddedResource Include="cur_zoomout.cur" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="cmd ..\unregister.bat" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cmd ..\register.bat" />
+  </Target>
+
+</Project>

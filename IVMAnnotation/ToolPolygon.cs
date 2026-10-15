@@ -13,7 +13,7 @@ namespace IVMAnnotation
 	{
 		public ToolPolygon()
 		{
-            Cursor = new Cursor(GetType(), "cur_pen_il.cur");
+            Cursor = new Cursor(Helper.GetCursorStream("cur_pen_il.cur"));
         }
 
         private int lastX;

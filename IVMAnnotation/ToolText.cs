@@ -17,7 +17,7 @@ namespace IVMAnnotation
 
 		public ToolText()
 		{
-            Cursor = new Cursor(GetType(), "cur_beam_il.cur");
+            Cursor = new Cursor(Helper.GetCursorStream("cur_beam_il.cur"));
 		}
 
         public override void OnMouseDown(DrawArea drawArea, MouseEventArgs e)

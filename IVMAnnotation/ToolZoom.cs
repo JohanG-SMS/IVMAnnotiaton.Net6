@@ -35,11 +35,11 @@ namespace IVMAnnotation
         {
             if (m_ZoomType == ZoomType.ZoomOut)
             {
-                Cursor = new Cursor(GetType(), "cur_zoomout.cur");
+                Cursor = new Cursor(Helper.GetCursorStream("cur_zoomout.cur"));
             }
             else
             {
-                Cursor = new Cursor(GetType(), "cur_zoomin.cur");
+                Cursor = new Cursor(Helper.GetCursorStream("cur_zoomin.cur"));
             }
 
             drawArea.Cursor = Cursor;
@@ -93,11 +93,11 @@ namespace IVMAnnotation
         {
             if (m_ZoomType == ZoomType.ZoomOut)
             {
-                Cursor = new Cursor(GetType(), "cur_zoomout.cur");
+                Cursor = new Cursor(Helper.GetCursorStream("cur_zoomout.cur"));
             }
             else
             {
-                Cursor = new Cursor(GetType(), "cur_zoomin.cur");
+                Cursor = new Cursor(Helper.GetCursorStream("cur_zoomin.cur"));
             }
 
             drawArea.Cursor = Cursor;

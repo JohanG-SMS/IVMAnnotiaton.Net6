@@ -1,20 +1,22 @@
 using System;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace IVMAnnotation
 {
 	/// <summary>
-	/// Line tool
+	/// Rectangle tool
 	/// </summary>
-	[ComVisible(false)]
-    public class ToolLine : IVMAnnotation.ToolObject
+    [ComVisible(false)]
+    public class ToolRectangle : IVMAnnotation.ToolObject
 	{
-        public ToolLine()
-        {
-            Cursor = new Cursor(GetType(), "cur_Pencil.cur");
-        }
+
+		public ToolRectangle()
+		{
+			Cursor = new Cursor(Helper.GetCursorStream("cur_Rectangle.cur"));
+		}
 
         public override void OnMouseDown(DrawArea drawArea, MouseEventArgs e)
         {
@@ -25,7 +27,7 @@ namespace IVMAnnotation
                 drawArea.GetZoomCorrectedCoordinates(point, out point);
             }
 
-            AddNewObject(drawArea, new DrawLine(point.X, point.Y, point.X + 1, point.Y + 1));
+            AddNewObject(drawArea, new DrawRectangle(point.X, point.Y, 1, 1));
         }
 
         public override void OnMouseMove(DrawArea drawArea, MouseEventArgs e)
@@ -41,9 +43,9 @@ namespace IVMAnnotation
                     drawArea.GetZoomCorrectedCoordinates(point, out point);
                 }
 
-                drawArea.GraphicsList[0].MoveHandleTo(point, 2);
+                drawArea.GraphicsList[0].MoveHandleTo(point, 5);
                 drawArea.Refresh();
             }
         }
-    }
+	}
 }

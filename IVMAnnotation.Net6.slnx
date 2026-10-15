@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="IVMAnnotation/IVMAnnotation.Net6.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="TestAnnotationApp/TestAnnotationApp.Net6.csproj" Id="95d81efe-7bae-416b-87c6-89c58524575a">
+    <Platform Solution="Debug|x64" Project="x64" />
+  </Project>
+</Solution>

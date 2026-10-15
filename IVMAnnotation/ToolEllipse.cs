@@ -13,7 +13,7 @@ namespace IVMAnnotation
 	{
 		public ToolEllipse()
 		{
-            Cursor = new Cursor(GetType(), "cur_Ellipse.cur");
+            Cursor = new Cursor(Helper.GetCursorStream("cur_Ellipse.cur"));
 		}
 
         public override void OnMouseDown(DrawArea drawArea, MouseEventArgs e)

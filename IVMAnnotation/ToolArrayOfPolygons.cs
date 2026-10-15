@@ -17,7 +17,7 @@ namespace IVMAnnotation
 
 		public ToolArrayOfPolygons()
 		{
-			Cursor = new Cursor(GetType(), "cur_PolyHandle.cur");
+			Cursor = new Cursor(Helper.GetCursorStream("cur_PolyHandle.cur"));
 		}
 
 		public override void OnMouseDown(DrawArea drawArea, MouseEventArgs e)

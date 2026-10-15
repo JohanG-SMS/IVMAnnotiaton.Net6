@@ -290,7 +290,7 @@ namespace IVMAnnotation
 
         private void LoadCursor()
         {
-            handleCursor = new Cursor(GetType(), "cur_PolyHandle.cur");
+            handleCursor = new Cursor(Helper.GetCursorStream("cur_PolyHandle.cur"));
         }
 
         public void OnClosePolygon(DrawArea area)
