@@ -278,37 +278,82 @@ namespace IVMAnnotation
             DrawNetSelection(e.Graphics);
         }
 
-        protected override void OnPaintBackground(PaintEventArgs pevent)
-        {
-            if (this.BackgroundImage != null)
-            {
-                if (m_bZoom)
-                {
-                    pevent.Graphics.ScaleTransform((float)this.ClientSize.Width/m_ZoomRect.Width, 
-                        (float)this.ClientSize.Height/m_ZoomRect.Height);
-                    pevent.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
-                }
+		//protected override void OnPaintBackground(PaintEventArgs pevent)
+		//{
+		//    if (this.BackgroundImage != null)
+		//    {
+		//        if (m_bZoom)
+		//        {
+		//            pevent.Graphics.ScaleTransform((float)this.ClientSize.Width/m_ZoomRect.Width, 
+		//                (float)this.ClientSize.Height/m_ZoomRect.Height);
+		//            pevent.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
+		//        }
 
-                pevent.Graphics.InterpolationMode =
-                    System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                
-                pevent.Graphics.DrawImage(this.BackgroundImage, 0, 0,
-                    this.ClientRectangle.Width, this.ClientRectangle.Height);
-            }
-            else
-            {
-                base.OnPaintBackground(pevent);
-            }
-        }
+		//        pevent.Graphics.InterpolationMode =
+		//            System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
 
-        /// <summary>
-        /// Mouse down.
-        /// Left button down event is passed to active tool.
-        /// Right button down event is handled in this class.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DrawArea_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+		//        pevent.Graphics.DrawImage(this.BackgroundImage, 0, 0,
+		//            this.ClientRectangle.Width, this.ClientRectangle.Height);
+		//    }
+		//    else
+		//    {
+		//        base.OnPaintBackground(pevent);
+		//    }
+		//}
+
+		protected override void OnPaintBackground(PaintEventArgs pevent)
+		{
+			if (this.BackgroundImage != null)
+			{
+				if (m_bZoom)
+				{
+					pevent.Graphics.ScaleTransform((float)this.ClientSize.Width / m_ZoomRect.Width,
+						(float)this.ClientSize.Height / m_ZoomRect.Height);
+					pevent.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
+				}
+
+				pevent.Graphics.InterpolationMode =
+					System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+				// Calculate dimensions to maintain aspect ratio
+				float imageAspectRatio = (float)this.BackgroundImage.Width / this.BackgroundImage.Height;
+				float clientAspectRatio = (float)this.ClientRectangle.Width / this.ClientRectangle.Height;
+
+				float drawWidth, drawHeight;
+
+				if (imageAspectRatio > clientAspectRatio)
+				{
+					// Image is wider than client area
+					drawWidth = this.ClientRectangle.Width;
+					drawHeight = this.ClientRectangle.Width / imageAspectRatio;
+				}
+				else
+				{
+					// Image is taller than client area
+					drawHeight = this.ClientRectangle.Height;
+					drawWidth = this.ClientRectangle.Height * imageAspectRatio;
+				}
+
+				// Center the image
+				float offsetX = (this.ClientRectangle.Width - drawWidth) / 2;
+				float offsetY = (this.ClientRectangle.Height - drawHeight) / 2;
+
+				pevent.Graphics.DrawImage(this.BackgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+			}
+			else
+			{
+				base.OnPaintBackground(pevent);
+			}
+		}
+
+		/// <summary>
+		/// Mouse down.
+		/// Left button down event is passed to active tool.
+		/// Right button down event is handled in this class.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void DrawArea_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             try
             {
