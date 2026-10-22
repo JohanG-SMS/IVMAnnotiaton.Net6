@@ -86,47 +86,265 @@ namespace IVMAnnotation
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DrawArea_MouseDown);
 
 		}
-        #endregion
+		#endregion
 
-        #region Members
-        private GraphicsList graphicsList;    
+		//      #region Members
+		//      private GraphicsList graphicsList;    
 
-        private AnnotationType activeTool;
+		//      private AnnotationType activeTool;
+		//private bool PolygonShapeSet = false;
+
+		//      private Tool[] tools;                 
+
+		//// group loaded image dimensions.
+		//private int imageWidth;
+		//private int imageHeight;
+
+		//      // group selection rectangle
+		//      private Rectangle netRectangle;
+		//      private bool drawNetRectangle = false;
+
+		//      // Information about owner form
+		//      private DrawAreaFileIO m_DrawAreaIO;
+
+		//      private bool m_bShowAnnotations = true;
+
+		//      // zoom members
+		//      private bool m_bZoom = false;
+		//      private Rectangle m_ZoomRect;
+
+		//      bool m_bDirty = false;
+		//      bool m_bViewMode = false;
+
+		//      private string m_sTextInputDlgMessage   = "Enter text:";
+		//      private string m_sTextInputDlgOK        = "OK";
+		//      private string m_sTextInputDlgCancel    = "Cancel";
+
+		//      #endregion
+
+		#region Members
+		private GraphicsList graphicsList;
+
+		private AnnotationType activeTool;
 		private bool PolygonShapeSet = false;
 
-        private Tool[] tools;                 
+		private Tool[] tools;
 
 		// group loaded image dimensions.
 		private int imageWidth;
 		private int imageHeight;
 
-        // group selection rectangle
-        private Rectangle netRectangle;
-        private bool drawNetRectangle = false;
+		// group selection rectangle
+		private Rectangle netRectangle;
+		private bool drawNetRectangle = false;
 
-        // Information about owner form
-        private DrawAreaFileIO m_DrawAreaIO;
+		// Information about owner form
+		private DrawAreaFileIO m_DrawAreaIO;
 
-        private bool m_bShowAnnotations = true;
+		private bool m_bShowAnnotations = true;
 
-        // zoom members
-        private bool m_bZoom = false;
-        private Rectangle m_ZoomRect;
+		// zoom members
+		private bool m_bZoom = false;
+		private Rectangle m_ZoomRect;
 
-        bool m_bDirty = false;
-        bool m_bViewMode = false;
+		// Image scaling members - for maintaining aspect ratio and relative positions
+		private float m_imageDrawWidth = 1.0f;
+		private float m_imageDrawHeight = 1.0f;
+		private float m_imageDrawOffsetX = 0.0f;
+		private float m_imageDrawOffsetY = 0.0f;
 
-        private string m_sTextInputDlgMessage   = "Enter text:";
-        private string m_sTextInputDlgOK        = "OK";
-        private string m_sTextInputDlgCancel    = "Cancel";
+		// Fixed reference coordinate space in which all annotation geometry is stored.
+		// This NEVER changes due to resizing - only when a new background image is
+		// loaded (native pixel size) or, if there is no image, it is captured once
+		// from the first usable control size. Because it is immutable across resizes,
+		// annotations never need to be rescaled/mutated when the window changes size;
+		// instead a single Graphics transform (scale + translate) is computed fresh on
+		// every paint to map this fixed space onto the current, possibly letterboxed,
+		// display area. This avoids the class of bugs where repeatedly mutating
+		// annotation geometry against a drifting/near-zero baseline sent annotations
+		// off-screen when the window became very small.
+		private int m_refWidth = 0;
+		private int m_refHeight = 0;
 
-        #endregion
-
-        #region Properties
 		/// <summary>
-        /// Group selection rectangle. Used for drawing.
-        /// </summary>
-        [ComVisible(false)]
+		/// Width of the fixed reference coordinate space that annotation geometry is
+		/// stored in (native background image width, or the control's initial width
+		/// if there is no background image).
+		/// </summary>
+		[ComVisible(false)]
+		public int ReferenceWidth
+		{
+			get
+			{
+				EnsureReferenceSize();
+				return m_refWidth;
+			}
+		}
+
+		/// <summary>
+		/// Height of the fixed reference coordinate space that annotation geometry is
+		/// stored in (native background image height, or the control's initial height
+		/// if there is no background image).
+		/// </summary>
+		[ComVisible(false)]
+		public int ReferenceHeight
+		{
+			get
+			{
+				EnsureReferenceSize();
+				return m_refHeight;
+			}
+		}
+
+		/// <summary>
+		/// Establishes the fixed reference coordinate space, if it hasn't been
+		/// established yet. When a background image is present, the reference space
+		/// is always the image's native pixel size (stable regardless of control
+		/// size). Without a background image, the reference space is captured once
+		/// from the first usable control size and never changed afterward.
+		/// </summary>
+		private void EnsureReferenceSize()
+		{
+			if (this.BackgroundImage != null)
+			{
+				if (imageWidth > 0 && imageHeight > 0)
+				{
+					m_refWidth = imageWidth;
+					m_refHeight = imageHeight;
+				}
+			}
+			else if (m_refWidth <= 0 || m_refHeight <= 0)
+			{
+				if (this.ClientRectangle.Width > 0 && this.ClientRectangle.Height > 0)
+				{
+					m_refWidth = this.ClientRectangle.Width;
+					m_refHeight = this.ClientRectangle.Height;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Width of the actual displayed image area (accounting for aspect-ratio letterboxing).
+		/// </summary>
+		[ComVisible(false)]
+		public int ImageDrawWidth
+		{
+			get
+			{
+				UpdateImageDrawRect();
+				return (int)m_imageDrawWidth;
+			}
+		}
+
+		/// <summary>
+		/// Height of the actual displayed image area (accounting for aspect-ratio letterboxing).
+		/// </summary>
+		[ComVisible(false)]
+		public int ImageDrawHeight
+		{
+			get
+			{
+				UpdateImageDrawRect();
+				return (int)m_imageDrawHeight;
+			}
+		}
+
+		/// <summary>
+		/// Calculates the rectangle (size + offset) in which the background image is
+		/// actually displayed, preserving its aspect ratio and centering it within the
+		/// control's client area. If there is no background image, the full client area
+		/// is used. Updates m_imageDrawWidth/Height/OffsetX/OffsetY.
+		/// </summary>
+		private void UpdateImageDrawRect()
+		{
+			if (this.BackgroundImage != null && this.ClientRectangle.Width > 0 && this.ClientRectangle.Height > 0)
+			{
+				float imageAspectRatio = (float)this.BackgroundImage.Width / this.BackgroundImage.Height;
+				float clientAspectRatio = (float)this.ClientRectangle.Width / this.ClientRectangle.Height;
+
+				if (imageAspectRatio > clientAspectRatio)
+				{
+					// Image is wider than client area
+					m_imageDrawWidth = this.ClientRectangle.Width;
+					m_imageDrawHeight = this.ClientRectangle.Width / imageAspectRatio;
+				}
+				else
+				{
+					// Image is taller than client area
+					m_imageDrawHeight = this.ClientRectangle.Height;
+					m_imageDrawWidth = this.ClientRectangle.Height * imageAspectRatio;
+				}
+
+				// Never let the displayed image collapse to less than 1px; a zero or
+				// near-zero dimension used as a scaling divisor would cause rendering
+				// issues at extremely small window sizes.
+				if (m_imageDrawWidth < 1.0f)
+				{
+					m_imageDrawWidth = 1.0f;
+				}
+				if (m_imageDrawHeight < 1.0f)
+				{
+					m_imageDrawHeight = 1.0f;
+				}
+
+				// Center the image
+				m_imageDrawOffsetX = (this.ClientRectangle.Width - m_imageDrawWidth) / 2;
+				m_imageDrawOffsetY = (this.ClientRectangle.Height - m_imageDrawHeight) / 2;
+			}
+			else
+			{
+				m_imageDrawWidth = Math.Max(1, this.ClientRectangle.Width);
+				m_imageDrawHeight = Math.Max(1, this.ClientRectangle.Height);
+				m_imageDrawOffsetX = 0.0f;
+				m_imageDrawOffsetY = 0.0f;
+			}
+		}
+
+		/// <summary>
+		/// Computes the uniform scale factor that maps a point in the fixed reference
+		/// coordinate space (see <see cref="EnsureReferenceSize"/>) to screen/device
+		/// pixels, matching the current displayed size of the background image (or
+		/// control, if there is no image).
+		/// </summary>
+		private float GetReferenceToScreenScale()
+		{
+			EnsureReferenceSize();
+			UpdateImageDrawRect();
+
+			if (m_refWidth <= 0 || m_refHeight <= 0)
+			{
+				return 1.0f;
+			}
+
+			// The displayed area preserves the reference aspect ratio, so the X and Y
+			// scale factors are equal; guard against edge cases by taking whichever
+			// axis gives a sane result.
+			float scaleX = m_imageDrawWidth / m_refWidth;
+			float scaleY = m_imageDrawHeight / m_refHeight;
+
+			float scale = (scaleX > 0) ? scaleX : scaleY;
+			if (scale <= 0 || float.IsNaN(scale) || float.IsInfinity(scale))
+			{
+				scale = 1.0f;
+			}
+
+			return scale;
+		}
+
+		bool m_bDirty = false;
+		bool m_bViewMode = false;
+
+		private string m_sTextInputDlgMessage = "Enter text:";
+		private string m_sTextInputDlgOK = "OK";
+		private string m_sTextInputDlgCancel = "Cancel";
+
+		#endregion
+
+		#region Properties
+		/// <summary>
+		/// Group selection rectangle. Used for drawing.
+		/// </summary>
+		[ComVisible(false)]
         public Rectangle NetRectangle
         {
             get
@@ -249,86 +467,153 @@ namespace IVMAnnotation
 				NotifyPropertyChanged();
 			}
         }
-        #endregion
+		#endregion
 
-        #region Event Handlers
+		#region Event Handlers
 
-        /// <summary>
-        /// Draw graphic objects and 
-        /// group selection rectangle (optionally)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DrawArea_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
-        {
-            if ( graphicsList != null )
-            {
-                if (m_bZoom)
-                {
-                    float newWidth  = (float)this.ClientSize.Width/m_ZoomRect.Width;
-                    float newHeight = (float)this.ClientSize.Height/m_ZoomRect.Height;
+		/// <summary>
+		/// Draw graphic objects and 
+		/// group selection rectangle (optionally)
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void DrawArea_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
+		{
+			// Save the graphics state
+			var initialState = e.Graphics.Save();
 
-                    e.Graphics.ScaleTransform(newWidth, newHeight);
-                    e.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
-                }
-				
-                graphicsList.Draw(e.Graphics, e.Graphics.DpiY);				
-            }
+			if (graphicsList != null)
+			{
+				// Recalculate the displayed image rectangle (size + centering offset) and
+				// the scale factor from the fixed reference coordinate space (in which all
+				// annotation geometry is stored) to the current screen size. This is a pure
+				// calculation performed fresh every paint - annotation geometry itself is
+				// never mutated by resizing, so there is no cumulative drift and no
+				// possibility of corrupting a scaling baseline when the window becomes
+				// very small.
+				UpdateImageDrawRect();
+				float refToScreenScale = GetReferenceToScreenScale();
 
-            DrawNetSelection(e.Graphics);
-        }
+				if (m_bZoom)
+				{
+					float newWidth = (float)this.ClientSize.Width / m_ZoomRect.Width;
+					float newHeight = (float)this.ClientSize.Height / m_ZoomRect.Height;
 
-        protected override void OnPaintBackground(PaintEventArgs pevent)
-        {
-            if (this.BackgroundImage != null)
-            {
-                if (m_bZoom)
-                {
-                    pevent.Graphics.ScaleTransform((float)this.ClientSize.Width/m_ZoomRect.Width, 
-                        (float)this.ClientSize.Height/m_ZoomRect.Height);
-                    pevent.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
-                }
+					e.Graphics.ScaleTransform(newWidth, newHeight);
+					e.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
+				}
 
-                pevent.Graphics.InterpolationMode =
-                    System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                
-                pevent.Graphics.DrawImage(this.BackgroundImage, 0, 0,
-                    this.ClientRectangle.Width, this.ClientRectangle.Height);
-            }
-            else
-            {
-                base.OnPaintBackground(pevent);
-            }
-        }
+				// Map reference-space annotation coordinates onto the letterboxed,
+				// centered background image: translate for centering, then scale for
+				// the current display size.
+				e.Graphics.TranslateTransform(m_imageDrawOffsetX, m_imageDrawOffsetY);
+				e.Graphics.ScaleTransform(refToScreenScale, refToScreenScale);
 
-        /// <summary>
-        /// Mouse down.
-        /// Left button down event is passed to active tool.
-        /// Right button down event is handled in this class.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DrawArea_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            try
-            {
-                if (!m_bViewMode)
-                {
-                    if (ShowAnnotation)
-                    {
-                        if ( e.Button == MouseButtons.Left )
-                        {
-                            tools[(int)activeTool].OnMouseDown(this, e);
-                        }
+				graphicsList.Draw(e.Graphics, e.Graphics.DpiY);
+			}
 
-                        this.Refresh();
-                    }
-                }
-            }
-            catch
-            {
-            }
-        }
+			// Restore graphics state before drawing net selection (so it's in screen coordinates)
+			e.Graphics.Restore(initialState);
+				DrawNetSelection(e.Graphics);
+			}
+
+		//private void DrawArea_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
+		//{
+		//    if ( graphicsList != null )
+		//    {
+		//        if (m_bZoom)
+		//        {
+		//            float newWidth  = (float)this.ClientSize.Width/m_ZoomRect.Width;
+		//            float newHeight = (float)this.ClientSize.Height/m_ZoomRect.Height;
+
+		//            e.Graphics.ScaleTransform(newWidth, newHeight);
+		//            e.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
+		//        }
+
+		//        graphicsList.Draw(e.Graphics, e.Graphics.DpiY);				
+		//    }
+
+		//    DrawNetSelection(e.Graphics);
+		//}
+
+		protected override void OnPaintBackground(PaintEventArgs pevent)
+		{
+			if (this.BackgroundImage != null)
+			{
+				if (m_bZoom)
+				{
+					pevent.Graphics.ScaleTransform((float)this.ClientSize.Width / m_ZoomRect.Width,
+						(float)this.ClientSize.Height / m_ZoomRect.Height);
+					pevent.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
+				}
+
+				pevent.Graphics.InterpolationMode =
+					System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+				// Calculate dimensions to maintain aspect ratio
+				UpdateImageDrawRect();
+
+				pevent.Graphics.DrawImage(this.BackgroundImage, m_imageDrawOffsetX, m_imageDrawOffsetY,
+					m_imageDrawWidth, m_imageDrawHeight);
+			}
+			else
+			{
+				base.OnPaintBackground(pevent);
+			}
+		}
+
+		//protected override void OnPaintBackground(PaintEventArgs pevent)
+		//{
+		//    if (this.BackgroundImage != null)
+		//    {
+		//        if (m_bZoom)
+		//        {
+		//            pevent.Graphics.ScaleTransform((float)this.ClientSize.Width/m_ZoomRect.Width, 
+		//                (float)this.ClientSize.Height/m_ZoomRect.Height);
+		//            pevent.Graphics.TranslateTransform(-m_ZoomRect.X, -m_ZoomRect.Y);
+		//        }
+
+		//        pevent.Graphics.InterpolationMode =
+		//            System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+		//        pevent.Graphics.DrawImage(this.BackgroundImage, 0, 0,
+		//            this.ClientRectangle.Width, this.ClientRectangle.Height);
+		//    }
+		//    else
+		//    {
+		//        base.OnPaintBackground(pevent);
+		//    }
+		//}
+
+		/// <summary>
+		/// Mouse down.
+		/// Left button down event is passed to active tool.
+		/// Right button down event is handled in this class.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void DrawArea_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+			{
+				try
+				{
+					if (!m_bViewMode)
+					{
+						if (ShowAnnotation)
+						{
+							MouseEventArgs adjusted = AdjustMouseEventArgs(e);
+							if ( e.Button == MouseButtons.Left )
+								{
+									tools[(int)activeTool].OnMouseDown(this, adjusted);
+								}
+
+							this.Refresh();
+						}
+					}
+				}
+				catch
+				{
+				}
+			}
 
 
         /// <summary>
@@ -347,7 +632,9 @@ namespace IVMAnnotation
                     if (ShowAnnotation)
                     {
                         if ( e.Button == MouseButtons.Left  ||  e.Button == MouseButtons.None )
-                            tools[(int)activeTool].OnMouseMove(this, e);
+                        {
+                            tools[(int)activeTool].OnMouseMove(this, AdjustMouseEventArgs(e));
+                        }
                         else
                             this.Cursor = Cursors.Default;
                     }
@@ -373,7 +660,9 @@ namespace IVMAnnotation
                     if (ShowAnnotation)
                     {
                         if ( e.Button == MouseButtons.Left )
-                            tools[(int)activeTool].OnMouseUp(this, e);
+                        {
+                            tools[(int)activeTool].OnMouseUp(this, AdjustMouseEventArgs(e));
+                        }
                     }
                 }
             }
@@ -382,6 +671,28 @@ namespace IVMAnnotation
                 Console.WriteLine(ex.StackTrace);
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Translates mouse coordinates from control (screen) space into the fixed
+        /// reference coordinate space that annotation geometry is stored in: first
+        /// removes the centering offset applied when the background image is
+        /// letterboxed within the control, then divides by the current reference-to-
+        /// screen scale factor. This matches the TranslateTransform + ScaleTransform
+        /// applied in DrawArea_Paint.
+        /// </summary>
+        private MouseEventArgs AdjustMouseEventArgs(MouseEventArgs e)
+        {
+            UpdateImageDrawRect();
+            float scale = GetReferenceToScreenScale();
+            if (scale <= 0)
+            {
+                scale = 1.0f;
+            }
+
+            int x = (int)((e.X - m_imageDrawOffsetX) / scale);
+            int y = (int)((e.Y - m_imageDrawOffsetY) / scale);
+            return new MouseEventArgs(e.Button, e.Clicks, x, y, e.Delta);
         }
 
         private void DrawArea_DoubleClick(object sender, EventArgs e)
@@ -455,7 +766,20 @@ namespace IVMAnnotation
             if ( ! DrawNetRectangle )
                 return;
 
-            ControlPaint.DrawFocusRectangle(g, NetRectangle, Color.Black, Color.Transparent);
+            float scale = GetReferenceToScreenScale();
+            if (scale <= 0)
+            {
+                scale = 1.0f;
+            }
+
+            Rectangle netRect = NetRectangle;
+            Rectangle screenRect = new Rectangle(
+                (int)(netRect.X * scale + m_imageDrawOffsetX),
+                (int)(netRect.Y * scale + m_imageDrawOffsetY),
+                (int)(netRect.Width * scale),
+                (int)(netRect.Height * scale));
+
+            ControlPaint.DrawFocusRectangle(g, screenRect, Color.Black, Color.Transparent);
         }
 
         [ComVisible(false)]

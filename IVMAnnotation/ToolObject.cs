@@ -55,10 +55,10 @@ namespace IVMAnnotation
             drawArea.GraphicsList.UnselectAll();
 
             o.Selected = false;
-            o.OriginalDrawAreaHeight = drawArea.Height;
-            o.OriginalDrawAreaWidth  = drawArea.Width;
-            o.CurrentDrawAreaHeight  = drawArea.Height;
-            o.CurrentDrawAreaWidth   = drawArea.Width;
+            o.OriginalDrawAreaHeight = drawArea.ReferenceHeight;
+            o.OriginalDrawAreaWidth  = drawArea.ReferenceWidth;
+            o.CurrentDrawAreaHeight  = drawArea.ReferenceHeight;
+            o.CurrentDrawAreaWidth   = drawArea.ReferenceWidth;
             drawArea.GraphicsList.Add(o);
 
             drawArea.Dirty   = true;

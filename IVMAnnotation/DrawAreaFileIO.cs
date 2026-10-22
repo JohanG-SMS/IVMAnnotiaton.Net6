@@ -50,8 +50,8 @@ namespace IVMAnnotation
                     for (int i = 0; i < nCount; i++)
                     {
                         DrawObject shape = m_drawArea.GraphicsList[i];
-                        shape.CurrentDrawAreaHeight = m_drawArea.Height;
-                        shape.CurrentDrawAreaWidth  = m_drawArea.Width;
+                        shape.CurrentDrawAreaHeight = m_drawArea.ReferenceHeight;
+                        shape.CurrentDrawAreaWidth  = m_drawArea.ReferenceWidth;
                         shape.ScaleObject();
                     }
 
@@ -101,8 +101,8 @@ namespace IVMAnnotation
 				for (int i = 0; i < nCount; i++)
 				{
 					DrawObject shape = m_drawArea.GraphicsList[i];
-					shape.CurrentDrawAreaHeight = m_drawArea.Height;
-					shape.CurrentDrawAreaWidth  = m_drawArea.Width;
+					shape.CurrentDrawAreaHeight = m_drawArea.ReferenceHeight;
+					shape.CurrentDrawAreaWidth  = m_drawArea.ReferenceWidth;
 					shape.ScaleObject();
 				}
 
@@ -217,8 +217,8 @@ namespace IVMAnnotation
                 for (int i = 0; i < nCount; i++)
                 {
                     DrawObject shape = m_drawArea.GraphicsList[i];
-                    shape.OriginalDrawAreaHeight = m_drawArea.Height;
-                    shape.OriginalDrawAreaWidth  = m_drawArea.Width;
+                    shape.OriginalDrawAreaHeight = m_drawArea.ReferenceHeight;
+                    shape.OriginalDrawAreaWidth  = m_drawArea.ReferenceWidth;
                 }
 
                 using( Stream stream = new FileStream(
@@ -249,8 +249,8 @@ namespace IVMAnnotation
 				for (int i=0;i<nCount;i++)
 				{
 					DrawObject shape = m_drawArea.GraphicsList[i];
-					shape.OriginalDrawAreaHeight = m_drawArea.Height;
-					shape.OriginalDrawAreaWidth = m_drawArea.Width;
+					shape.OriginalDrawAreaHeight = m_drawArea.ReferenceHeight;
+					shape.OriginalDrawAreaWidth = m_drawArea.ReferenceWidth;
 				}
 
 				if (File.Exists(sFilename))
